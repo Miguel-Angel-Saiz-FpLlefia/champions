@@ -12,6 +12,21 @@ type TeamBadgeProps = {
 };
 
 export function TeamBadge({ team, size = "md" }: TeamBadgeProps) {
+  if (team.logoUrl) {
+    return (
+      <div
+        className={`grid place-items-center rounded-full bg-white/10 overflow-hidden shadow-[0_0_25px_rgba(67,199,255,0.2)] ${sizeMap[size]}`}
+      >
+        <img
+          src={team.logoUrl}
+          alt={`Logo ${team.name}`}
+          className="h-full w-full object-contain p-1.5"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`grid place-items-center rounded-full border border-white/20 font-semibold tracking-wide text-white shadow-[0_0_25px_rgba(67,199,255,0.2)] ${

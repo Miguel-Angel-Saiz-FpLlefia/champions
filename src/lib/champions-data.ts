@@ -8,6 +8,7 @@ export type Team = {
     from: string;
     to: string;
   };
+  logoUrl?: string;
 };
 
 export type MatchResult = {
@@ -48,6 +49,7 @@ export const teams: Team[] = [
     country: "Espana",
     code: "RMA",
     colors: { from: "#0b1f5b", to: "#e5b94a" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
   },
   {
     id: "barcelona",
@@ -56,6 +58,7 @@ export const teams: Team[] = [
     country: "Espana",
     code: "BAR",
     colors: { from: "#8f1f2e", to: "#2450ff" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
   },
   {
     id: "atletico-madrid",
@@ -64,6 +67,7 @@ export const teams: Team[] = [
     country: "Espana",
     code: "ATM",
     colors: { from: "#b51e2a", to: "#2d6bff" },
+    logoUrl: "https://imageio.forbes.com/i-forbesimg/media/lists/teams/atletico-de-madrid_416x416.jpg?format=jpg",
   },
   {
     id: "girona",
@@ -72,6 +76,7 @@ export const teams: Team[] = [
     country: "Espana",
     code: "GIR",
     colors: { from: "#c2182b", to: "#f2f2f2" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/9/90/Girona_FC_logo.svg",
   },
   {
     id: "manchester-city",
@@ -80,6 +85,7 @@ export const teams: Team[] = [
     country: "Inglaterra",
     code: "MCI",
     colors: { from: "#3b9bff", to: "#cfe8ff" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg",
   },
   {
     id: "arsenal",
@@ -88,6 +94,7 @@ export const teams: Team[] = [
     country: "Inglaterra",
     code: "ARS",
     colors: { from: "#8d0f1b", to: "#ffcd59" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
   },
   {
     id: "liverpool",
@@ -96,6 +103,7 @@ export const teams: Team[] = [
     country: "Inglaterra",
     code: "LIV",
     colors: { from: "#930b23", to: "#ff6a6a" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg",
   },
   {
     id: "aston-villa",
@@ -104,6 +112,7 @@ export const teams: Team[] = [
     country: "Inglaterra",
     code: "AVL",
     colors: { from: "#7b1020", to: "#9ed6ff" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Aston_Villa_FC_new_crest.svg/250px-Aston_Villa_FC_new_crest.svg.png",
   },
   {
     id: "bayern-munich",
@@ -112,6 +121,7 @@ export const teams: Team[] = [
     country: "Alemania",
     code: "BAY",
     colors: { from: "#9b1022", to: "#e93e7b" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg",
   },
   {
     id: "bayer-leverkusen",
@@ -120,6 +130,7 @@ export const teams: Team[] = [
     country: "Alemania",
     code: "LEV",
     colors: { from: "#bf1b1b", to: "#f3d45a" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/5/59/Bayer_04_Leverkusen_logo.svg",
   },
   {
     id: "vfb-stuttgart",
@@ -144,6 +155,7 @@ export const teams: Team[] = [
     country: "Alemania",
     code: "BVB",
     colors: { from: "#f6d800", to: "#1a1a1a" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg",
   },
   {
     id: "inter-milan",
@@ -152,6 +164,7 @@ export const teams: Team[] = [
     country: "Italia",
     code: "INT",
     colors: { from: "#0c2b6b", to: "#2ec4ff" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg",
   },
   {
     id: "milan",
@@ -160,6 +173,7 @@ export const teams: Team[] = [
     country: "Italia",
     code: "MIL",
     colors: { from: "#b00020", to: "#1b1b1b" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg",
   },
   {
     id: "juventus",
@@ -168,6 +182,7 @@ export const teams: Team[] = [
     country: "Italia",
     code: "JUV",
     colors: { from: "#111111", to: "#f2f2f2" },
+    logoUrl: "https://image-service.onefootball.com/transform?w=256&dpr=2&image=https%3A%2F%2Fimages.onefootball.com%2Ficons%2Fteams%2F164%2F17.png",
   },
   {
     id: "atalanta",
@@ -176,6 +191,7 @@ export const teams: Team[] = [
     country: "Italia",
     code: "ATA",
     colors: { from: "#123a7a", to: "#0a0a0a" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/6/66/AtalantaBC.svg/960px-AtalantaBC.svg.png",
   },
   {
     id: "bologna",
@@ -192,6 +208,7 @@ export const teams: Team[] = [
     country: "Francia",
     code: "PSG",
     colors: { from: "#1d2a7a", to: "#ff5ea8" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg",
   },
   {
     id: "monaco",
@@ -200,6 +217,7 @@ export const teams: Team[] = [
     country: "Francia",
     code: "MON",
     colors: { from: "#c51a2d", to: "#f7c75d" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/c/cf/LogoASMonacoFC2021.svg/960px-LogoASMonacoFC2021.svg.png",
   },
   {
     id: "brest",
@@ -208,6 +226,7 @@ export const teams: Team[] = [
     country: "Francia",
     code: "BRE",
     colors: { from: "#b11d2e", to: "#f598a1" },
+    logoUrl: "https://c.ndtvimg.com/gws/ms/why-ucl-newcomers-brest-cannot-play-at-home/assets/5.jpeg?1726572472",
   },
   {
     id: "lille",
@@ -216,6 +235,7 @@ export const teams: Team[] = [
     country: "Francia",
     code: "LIL",
     colors: { from: "#99263b", to: "#f8a3b2" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/3/3f/Lille_OSC_2018_logo.svg/250px-Lille_OSC_2018_logo.svg.png",
   },
   {
     id: "psv-eindhoven",
@@ -224,6 +244,7 @@ export const teams: Team[] = [
     country: "Paises Bajos",
     code: "PSV",
     colors: { from: "#d1102d", to: "#ffffff" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/PSV_Eindhoven.svg/1280px-PSV_Eindhoven.svg.png",
   },
   {
     id: "feyenoord",
@@ -232,6 +253,7 @@ export const teams: Team[] = [
     country: "Paises Bajos",
     code: "FEY",
     colors: { from: "#b80f2e", to: "#151515" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Feyenoord_logo_since_2024.svg/1280px-Feyenoord_logo_since_2024.svg.png",
   },
   {
     id: "sporting-cp",
@@ -240,6 +262,7 @@ export const teams: Team[] = [
     country: "Portugal",
     code: "SCP",
     colors: { from: "#0f7f43", to: "#c2f0d0" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/3/3e/Sporting_CP_logo.svg",
   },
   {
     id: "benfica",
@@ -248,6 +271,7 @@ export const teams: Team[] = [
     country: "Portugal",
     code: "BEN",
     colors: { from: "#c8142b", to: "#f7f7f7" },
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/a/a2/SL_Benfica_logo.svg",
   },
   {
     id: "club-brugge",
@@ -341,8 +365,8 @@ export const featuredTeamIds = [
   "borussia-dortmund",
 ];
 
-// Datos reales basados en la fase de liga 2024-25 (Jornada 1).
 export const latestResults: MatchResult[] = [
+  // JORNADAS
   {
     id: "ybg-avl-2024-09-17",
     stage: "Fase de liga - Jornada 1",
@@ -523,6 +547,301 @@ export const latestResults: MatchResult[] = [
     awayScore: 1,
     status: "Finalizado",
   },
+
+  // OCTAVOS DE FINAL
+  {
+    id: "liv-psg-2025-03-04",
+    stage: "Octavos de final",
+    date: "4 Mar 2025",
+    homeTeamId: "liverpool",
+    awayTeamId: "paris-saint-germain",
+    homeScore: 1,
+    awayScore: 0,
+    status: "Finalizado",
+  },
+  {
+    id: "psg-liv-2025-03-12",
+    stage: "Octavos de final",
+    date: "12 Mar 2025",
+    homeTeamId: "paris-saint-germain",
+    awayTeamId: "liverpool",
+    homeScore: 1,
+    awayScore: 0,
+    status: "Finalizado",
+  },
+  {
+    id: "ben-bar-2025-03-05",
+    stage: "Octavos de final",
+    date: "5 Mar 2025",
+    homeTeamId: "benfica",
+    awayTeamId: "barcelona",
+    homeScore: 0,
+    awayScore: 3,
+    status: "Finalizado",
+  },
+  {
+    id: "bar-ben-2025-03-13",
+    stage: "Octavos de final",
+    date: "13 Mar 2025",
+    homeTeamId: "barcelona",
+    awayTeamId: "benfica",
+    homeScore: 2,
+    awayScore: 0,
+    status: "Finalizado",
+  },
+  {
+    id: "psv-ars-2025-03-04",
+    stage: "Octavos de final",
+    date: "4 Mar 2025",
+    homeTeamId: "psv-eindhoven",
+    awayTeamId: "arsenal",
+    homeScore: 1,
+    awayScore: 4,
+    status: "Finalizado",
+  },
+  {
+    id: "ars-psv-2025-03-12",
+    stage: "Octavos de final",
+    date: "12 Mar 2025",
+    homeTeamId: "arsenal",
+    awayTeamId: "psv-eindhoven",
+    homeScore: 5,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "fey-int-2025-03-05",
+    stage: "Octavos de final",
+    date: "5 Mar 2025",
+    homeTeamId: "feyenoord",
+    awayTeamId: "inter-milan",
+    homeScore: 0,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "int-fey-2025-03-13",
+    stage: "Octavos de final",
+    date: "13 Mar 2025",
+    homeTeamId: "inter-milan",
+    awayTeamId: "feyenoord",
+    homeScore: 2,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  {
+    id: "atm-rma-2025-03-04",
+    stage: "Octavos de final",
+    date: "4 Mar 2025",
+    homeTeamId: "atletico-madrid",
+    awayTeamId: "real-madrid",
+    homeScore: 1,
+    awayScore: 0,
+    status: "Finalizado",
+  },
+  {
+    id: "rma-atm-2025-03-12",
+    stage: "Octavos de final",
+    date: "12 Mar 2025",
+    homeTeamId: "real-madrid",
+    awayTeamId: "atletico-madrid",
+    homeScore: 1,
+    awayScore: 0,
+    status: "Finalizado",
+  },
+  {
+    id: "lev-bay-2025-03-05",
+    stage: "Octavos de final",
+    date: "5 Mar 2025",
+    homeTeamId: "bayer-leverkusen",
+    awayTeamId: "bayern-munich",
+    homeScore: 0,
+    awayScore: 3,
+    status: "Finalizado",
+  },
+  {
+    id: "bay-lev-2025-03-13",
+    stage: "Octavos de final",
+    date: "13 Mar 2025",
+    homeTeamId: "bayern-munich",
+    awayTeamId: "bayer-leverkusen",
+    homeScore: 2,
+    awayScore: 0,
+    status: "Finalizado",
+  },
+  {
+    id: "lil-bvb-2025-03-04",
+    stage: "Octavos de final",
+    date: "4 Mar 2025",
+    homeTeamId: "lille",
+    awayTeamId: "borussia-dortmund",
+    homeScore: 1,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "bvb-lil-2025-03-12",
+    stage: "Octavos de final",
+    date: "12 Mar 2025",
+    homeTeamId: "borussia-dortmund",
+    awayTeamId: "lille",
+    homeScore: 1,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  {
+    id: "bru-avl-2025-03-05",
+    stage: "Octavos de final",
+    date: "5 Mar 2025",
+    homeTeamId: "club-brugge",
+    awayTeamId: "aston-villa",
+    homeScore: 0,
+    awayScore: 3,
+    status: "Finalizado",
+  },
+  {
+    id: "avl-bru-2025-03-13",
+    stage: "Octavos de final",
+    date: "13 Mar 2025",
+    homeTeamId: "aston-villa",
+    awayTeamId: "club-brugge",
+    homeScore: 3,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  // CUARTOS DE FINAL
+  {
+    id: "rma-ars-2025-04-08",
+    stage: "Cuartos de final",
+    date: "8 Apr 2025",
+    homeTeamId: "real-madrid",
+    awayTeamId: "arsenal",
+    homeScore: 0,
+    awayScore: 3,
+    status: "Finalizado",
+  },
+  {
+    id: "ars-rma-2025-04-16",
+    stage: "Cuartos de final",
+    date: "16 Apr 2025",
+    homeTeamId: "arsenal",
+    awayTeamId: "real-madrid",
+    homeScore: 2,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  {
+    id: "avl-psg-2025-04-09",
+    stage: "Cuartos de final",
+    date: "9 Apr 2025",
+    homeTeamId: "aston-villa",
+    awayTeamId: "paris-saint-germain",
+    homeScore: 2,
+    awayScore: 3,
+    status: "Finalizado",
+  },
+  {
+    id: "psg-avl-2025-04-17",
+    stage: "Cuartos de final",
+    date: "17 Apr 2025",
+    homeTeamId: "paris-saint-germain",
+    awayTeamId: "aston-villa",
+    homeScore: 2,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "bvb-bar-2025-04-08",
+    stage: "Cuartos de final",
+    date: "8 Apr 2025",
+    homeTeamId: "borussia-dortmund",
+    awayTeamId: "barcelona",
+    homeScore: 1,
+    awayScore: 3,
+    status: "Finalizado",
+  },
+  {
+    id: "bar-bvb-2025-04-16",
+    stage: "Cuartos de final",
+    date: "16 Apr 2025",
+    homeTeamId: "barcelona",
+    awayTeamId: "borussia-dortmund",
+    homeScore: 2,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "bay-int-2025-04-09",
+    stage: "Cuartos de final",
+    date: "9 Apr 2025",
+    homeTeamId: "bayern-munich",
+    awayTeamId: "inter-milan",
+    homeScore: 1,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "int-bay-2025-04-17",
+    stage: "Cuartos de final",
+    date: "17 Apr 2025",
+    homeTeamId: "inter-milan",
+    awayTeamId: "bayern-munich",
+    homeScore: 2,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  // SEMIFINALES
+  {
+    id: "ars-psg-2025-04-29",
+    stage: "Semifinales",
+    date: "29 Apr 2025",
+    homeTeamId: "arsenal",
+    awayTeamId: "paris-saint-germain",
+    homeScore: 1,
+    awayScore: 2,
+    status: "Finalizado",
+  },
+  {
+    id: "psg-ars-2025-05-07",
+    stage: "Semifinales",
+    date: "7 May 2025",
+    homeTeamId: "paris-saint-germain",
+    awayTeamId: "arsenal",
+    homeScore: 1,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  {
+    id: "bar-int-2025-04-30",
+    stage: "Semifinales",
+    date: "30 Apr 2025",
+    homeTeamId: "barcelona",
+    awayTeamId: "inter-milan",
+    homeScore: 0,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  {
+    id: "int-bar-2025-05-08",
+    stage: "Semifinales",
+    date: "8 May 2025",
+    homeTeamId: "inter-milan",
+    awayTeamId: "barcelona",
+    homeScore: 1,
+    awayScore: 1,
+    status: "Finalizado",
+  },
+  // FINAL
+  {
+    id: "psg-int-2025-05-31",
+    stage: "Final",
+    date: "31 May 2025",
+    homeTeamId: "paris-saint-germain",
+    awayTeamId: "inter-milan",
+    homeScore: 5,
+    awayScore: 0,
+    status: "Finalizado",
+  },
 ];
 
 export const standings: StandingsRow[] = [
@@ -564,41 +883,7 @@ export const standings: StandingsRow[] = [
   { position: 36, teamId: "young-boys", played: 8, gd: -21, points: 0 },
 ];
 
-// Datos reales basados en los cuartos de final (ida) 2025.
-export const upcomingMatches: UpcomingMatch[] = [
-  {
-    id: "ars-rma-2025-04-08",
-    stage: "Cuartos de final - Ida",
-    date: "8 Apr 2025",
-    time: "21:00",
-    homeTeamId: "arsenal",
-    awayTeamId: "real-madrid",
-  },
-  {
-    id: "bay-int-2025-04-08",
-    stage: "Cuartos de final - Ida",
-    date: "8 Apr 2025",
-    time: "21:00",
-    homeTeamId: "bayern-munich",
-    awayTeamId: "inter-milan",
-  },
-  {
-    id: "psg-avl-2025-04-09",
-    stage: "Cuartos de final - Ida",
-    date: "9 Apr 2025",
-    time: "21:00",
-    homeTeamId: "paris-saint-germain",
-    awayTeamId: "aston-villa",
-  },
-  {
-    id: "bar-bvb-2025-04-09",
-    stage: "Cuartos de final - Ida",
-    date: "9 Apr 2025",
-    time: "21:00",
-    homeTeamId: "barcelona",
-    awayTeamId: "borussia-dortmund",
-  },
-];
+export const upcomingMatches: UpcomingMatch[] = [];
 
 const teamMap = new Map(teams.map((team) => [team.id, team]));
 
