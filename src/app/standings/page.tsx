@@ -1,8 +1,17 @@
 import { SiteHeader } from "@/components/site-header";
 import { TeamBadge } from "@/components/team-badge";
-import { getTeamById, standings } from "@/lib/champions-data";
+import { getStandings, getTeam } from "@/lib/service";
 
-export default function StandingsPage() {
+export default async function StandingsPage() {
+  const standings = await getStandings();
+
+  const standingsWithTeams = await Promise.all(
+    standings.map(async (row) => {
+      const team = await getTeam(row.teamId);
+      return { row, team };
+    })
+  );
+
   return (
     <div className="min-h-screen bg-[#050b1d] text-white">
       <SiteHeader />
@@ -24,8 +33,7 @@ export default function StandingsPage() {
             <span className="text-right">PTS</span>
           </div>
           <div className="mt-3 space-y-3">
-            {standings.map((row) => {
-              const team = getTeamById(row.teamId);
+            {standingsWithTeams.map(({ row, team }) => {
               if (!team) {
                 return null;
               }

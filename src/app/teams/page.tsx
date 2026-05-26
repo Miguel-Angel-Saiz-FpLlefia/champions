@@ -1,10 +1,11 @@
 import Link from "next/link";
-
 import { SiteHeader } from "@/components/site-header";
 import { TeamBadge } from "@/components/team-badge";
-import { teams } from "@/lib/champions-data";
+import { getTeams } from "@/lib/service";
 
-export default function TeamsPage() {
+export default async function TeamsPage() {
+  const teams = await getTeams();
+
   return (
     <div className="min-h-screen bg-[#050b1d] text-white">
       <SiteHeader />

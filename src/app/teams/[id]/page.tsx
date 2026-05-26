@@ -1,20 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
 import { SiteHeader } from "@/components/site-header";
 import { TeamBadge } from "@/components/team-badge";
 import {
-  getTeamById,
-  getTeamBySlug,
-  latestResults,
-  standings,
-  teams,
-  upcomingMatches,
-  getTeamSquad,
-} from "@/lib/champions-data";
+  getTeam,
+  getMatches,
+  getUpcomingMatches,
+  getStandings,
+  getTeamSquadById,
+  getTeams,
+} from "@/lib/service";
 
-export function generateStaticParams() {
-  return teams.map((team) => ({ id: team.id }));
+export async function generateStaticParams() {
+  const allTeams = await getTeams();
+  return allTeams.map((team) => ({ id: team.id }));
 }
 
 type TeamPageProps = {
@@ -23,26 +22,48 @@ type TeamPageProps = {
 
 export default async function TeamPage({ params }: TeamPageProps) {
   const { id } = await params;
-  const team = getTeamBySlug(id);
+  const team = await getTeam(id);
 
   if (!team) {
     notFound();
   }
 
-  const recentMatches = latestResults.filter(
+  const allMatches = await getMatches();
+  const recentMatches = allMatches.filter(
     (match) => match.homeTeamId === team.id || match.awayTeamId === team.id,
   );
-  const upcoming = upcomingMatches.filter(
+
+  const recentMatchesWithTeams = await Promise.all(
+    recentMatches.map(async (match) => {
+      const home = await getTeam(match.homeTeamId);
+      const away = await getTeam(match.awayTeamId);
+      return { match, home, away };
+    })
+  );
+
+  const upcomingMatchesList = await getUpcomingMatches();
+  const upcoming = upcomingMatchesList.filter(
     (match) => match.homeTeamId === team.id || match.awayTeamId === team.id,
   );
-  const standing = standings.find((row) => row.teamId === team.id);
-  const squad = getTeamSquad(team.id);
+
+  // Pre-fetch teams for upcoming matches as well to ensure clean types
+  const upcomingWithTeams = await Promise.all(
+    upcoming.map(async (match) => {
+      const home = await getTeam(match.homeTeamId);
+      const away = await getTeam(match.awayTeamId);
+      return { match, home, away };
+    })
+  );
+
+  const allStandings = await getStandings();
+  const standing = allStandings.find((row) => row.teamId === team.id);
+  const squad = await getTeamSquadById(team.id);
 
   // Agrupación por posiciones
-  const goalkeepers = squad.starters.filter((p) => p.pos === "POR");
-  const defenders = squad.starters.filter((p) => p.pos === "DEF");
-  const midfielders = squad.starters.filter((p) => p.pos === "MED");
-  const forwards = squad.starters.filter((p) => p.pos === "DEL");
+  const goalkeepers = squad.starters.filter((p: any) => p.pos === "POR");
+  const defenders = squad.starters.filter((p: any) => p.pos === "DEF");
+  const midfielders = squad.starters.filter((p: any) => p.pos === "MED");
+  const forwards = squad.starters.filter((p: any) => p.pos === "DEL");
 
   return (
     <div className="min-h-screen bg-[#050b1d] text-white">
@@ -75,15 +96,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
               <h2 className="text-lg font-semibold">Resultados recientes</h2>
               <div className="mt-4 space-y-3">
-                {recentMatches.length === 0 ? (
+                {recentMatchesWithTeams.length === 0 ? (
                   <p className="text-sm text-white/60">
                     No hay resultados recientes disponibles.
                   </p>
                 ) : (
-                  recentMatches.map((match) => {
-                    const home = getTeamById(match.homeTeamId);
-                    const away = getTeamById(match.awayTeamId);
-
+                  recentMatchesWithTeams.map(({ match, home, away }) => {
                     if (!home || !away) {
                       return null;
                     }
@@ -128,7 +146,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
                     <div>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Porteros</h3>
                       <div className="space-y-1.5">
-                        {goalkeepers.map((player, i) => (
+                        {goalkeepers.map((player: any, i: number) => (
                           <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
                             <span className="font-medium text-white/90">{player.name}</span>
                             <span className="text-xs font-mono text-white/40">#{player.number}</span>
@@ -142,7 +160,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
                     <div>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Defensas</h3>
                       <div className="space-y-1.5">
-                        {defenders.map((player, i) => (
+                        {defenders.map((player: any, i: number) => (
                           <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
                             <span className="font-medium text-white/90">{player.name}</span>
                             <span className="text-xs font-mono text-white/40">#{player.number}</span>
@@ -156,7 +174,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
                     <div>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Centrocampistas</h3>
                       <div className="space-y-1.5">
-                        {midfielders.map((player, i) => (
+                        {midfielders.map((player: any, i: number) => (
                           <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
                             <span className="font-medium text-white/90">{player.name}</span>
                             <span className="text-xs font-mono text-white/40">#{player.number}</span>
@@ -170,7 +188,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
                     <div>
                       <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Delanteros</h3>
                       <div className="space-y-1.5">
-                        {forwards.map((player, i) => (
+                        {forwards.map((player: any, i: number) => (
                           <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
                             <span className="font-medium text-white/90">{player.name}</span>
                             <span className="text-xs font-mono text-white/40">#{player.number}</span>
@@ -184,7 +202,7 @@ export default async function TeamPage({ params }: TeamPageProps) {
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-yellow-400/90 mb-2">Suplentes habituales</h3>
                   <div className="space-y-1.5">
-                    {squad.substitutes.map((player, i) => (
+                    {squad.substitutes.map((player: any, i: number) => (
                       <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
                         <span className="font-medium text-white/80">{player.name}</span>
                         <span className="text-xs font-mono text-white/40">#{player.number}</span>
@@ -223,15 +241,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
               <h2 className="text-lg font-semibold">Proximos partidos</h2>
               <div className="mt-4 space-y-3">
-                {upcoming.length === 0 ? (
+                {upcomingWithTeams.length === 0 ? (
                   <p className="text-sm text-white/60">
                     No hay partidos programados.
                   </p>
                 ) : (
-                  upcoming.map((match) => {
-                    const home = getTeamById(match.homeTeamId);
-                    const away = getTeamById(match.awayTeamId);
-
+                  upcomingWithTeams.map(({ match, home, away }) => {
                     if (!home || !away) {
                       return null;
                     }

@@ -1,9 +1,19 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { TeamBadge } from "@/components/team-badge";
-import { getTeamById, latestResults } from "@/lib/champions-data";
+import { getMatches, getTeam } from "@/lib/service";
 
-export default function ResultsPage() {
+export default async function ResultsPage() {
+  const latestResults = await getMatches();
+
+  const resultsWithTeams = await Promise.all(
+    latestResults.map(async (match) => {
+      const homeTeam = await getTeam(match.homeTeamId);
+      const awayTeam = await getTeam(match.awayTeamId);
+      return { match, homeTeam, awayTeam };
+    })
+  );
+
   return (
     <div className="min-h-screen bg-[#050b1d] text-white">
       <SiteHeader />
@@ -18,10 +28,7 @@ export default function ResultsPage() {
         </div>
 
         <div className="mt-8 space-y-4">
-          {latestResults.map((match) => {
-            const homeTeam = getTeamById(match.homeTeamId);
-            const awayTeam = getTeamById(match.awayTeamId);
-
+          {resultsWithTeams.map(({ match, homeTeam, awayTeam }) => {
             if (!homeTeam || !awayTeam) {
               return null;
             }
