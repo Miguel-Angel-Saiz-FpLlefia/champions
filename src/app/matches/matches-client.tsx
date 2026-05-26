@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { TeamBadge } from "@/components/team-badge";
 import type { MatchResult } from "@/lib/champions-data";
-import { getTeamById } from "@/lib/champions-data"; // Note: Since the service returns data, we can still use getTeamById or import it.
+import { getTeamById } from "@/lib/champions-data";
 
 const PHASES = [
   "Todos",
@@ -59,13 +60,17 @@ export function MatchesClient({ results }: { results: MatchResult[] }) {
               }
 
               return (
-                <div
+                <Link
                   key={match.id}
-                  className="rounded-2xl border border-white/10 bg-[#0b1636]/70 p-4"
+                  href={`/matches/${match.id}`}
+                  className="block rounded-2xl border border-white/10 bg-[#0b1636]/70 p-4 transition-all duration-300 hover:border-cyan-500/50 hover:bg-[#0e1d47]/80 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:-translate-y-0.5"
                 >
                   <div className="flex items-center justify-between text-xs text-white/60">
                     <span>{match.date}</span>
-                    <span>{match.stage}</span>
+                    <span className="flex items-center gap-1.5">
+                      {match.stage}
+                      <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-1.5 py-0.5 rounded border border-cyan-500/25">Detalles</span>
+                    </span>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <div className="flex items-center gap-3 w-[40%]">
@@ -90,7 +95,7 @@ export function MatchesClient({ results }: { results: MatchResult[] }) {
                       <TeamBadge team={awayTeam} size="sm" />
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

@@ -164,9 +164,10 @@ export default async function Home() {
                   }
 
                   return (
-                    <div
+                    <Link
                       key={match.id}
-                      className="rounded-2xl border border-white/10 bg-[#0b1636]/70 p-4"
+                      href={`/matches/${match.id}`}
+                      className="block rounded-2xl border border-white/10 bg-[#0b1636]/70 p-4 transition-all duration-300 hover:border-cyan-500/50 hover:bg-[#0e1d47]/80 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:-translate-y-0.5"
                     >
                       <div className="flex items-center justify-between text-xs text-white/60">
                         <span>{match.date}</span>
@@ -199,10 +200,11 @@ export default async function Home() {
                           <TeamBadge team={awayTeam} size="sm" />
                         </div>
                       </div>
-                      <div className="mt-3 text-xs font-semibold text-cyan-300">
-                        {match.status}
+                      <div className="mt-3 flex items-center justify-between text-xs font-semibold text-cyan-300">
+                        <span>{match.status}</span>
+                        <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-1.5 py-0.5 rounded border border-cyan-500/25">Detalles</span>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
