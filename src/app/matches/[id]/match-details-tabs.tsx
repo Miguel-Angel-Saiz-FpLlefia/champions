@@ -241,24 +241,34 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
                         {config.suffix}
                       </span>
                     </div>
-                    {/* Barra de progreso de dos extremos */}
-                    <div className="h-2 w-full rounded-full bg-white/10 flex overflow-hidden">
-                      <div
-                        className="h-full transition-all duration-500"
-                        style={{
-                          width: `${homePercent}%`,
-                          backgroundColor: homeColor,
-                          opacity: isHomeWin ? 1 : 0.6
-                        }}
-                      />
-                      <div
-                        className="h-full transition-all duration-500 ml-auto"
-                        style={{
-                          width: `${awayPercent}%`,
-                          backgroundColor: awayColor,
-                          opacity: isAwayWin ? 1 : 0.6
-                        }}
-                      />
+                    {/* Barra de progreso de dos extremos encontrándose en el centro */}
+                    <div className="grid grid-cols-[1fr_2px_1fr] items-center gap-2">
+                      {/* Barra Local (crece hacia la izquierda) */}
+                      <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden flex justify-end">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${homePercent}%`,
+                            backgroundColor: homeColor,
+                            opacity: isHomeWin ? 1 : 0.7
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Divisor central */}
+                      <div className="h-3 w-[2px] bg-white/20" />
+                      
+                      {/* Barra Visitante (crece hacia la derecha) */}
+                      <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden flex justify-start">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${awayPercent}%`,
+                            backgroundColor: awayColor,
+                            opacity: isAwayWin ? 1 : 0.7
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 );

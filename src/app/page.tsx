@@ -174,26 +174,26 @@ export default async function Home() {
                         <span className="font-bold text-yellow-400/80">{match.stage}</span>
                       </div>
                       <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3 w-[40%]">
+                        <div className="flex items-center gap-3 w-[35%] min-w-0">
                           <TeamBadge team={homeTeam} size="sm" />
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-sm font-semibold truncate hidden sm:block">
                               {homeTeam.shortName}
                             </p>
-                            <p className="text-sm font-semibold sm:hidden">
+                            <p className="text-sm font-semibold sm:hidden truncate">
                               {homeTeam.code}
                             </p>
                           </div>
                         </div>
-                        <div className="text-xl font-bold bg-white/10 px-3 py-1 rounded-md">
+                        <div className="text-xl font-bold bg-white/10 px-4 py-1 rounded-lg whitespace-nowrap flex-shrink-0 mx-2">
                           {match.homeScore} - {match.awayScore}
                         </div>
-                        <div className="flex items-center gap-3 w-[40%] justify-end">
-                          <div className="text-right">
+                        <div className="flex items-center gap-3 w-[35%] min-w-0 justify-end">
+                          <div className="text-right min-w-0">
                             <p className="text-sm font-semibold truncate hidden sm:block">
                               {awayTeam.shortName}
                             </p>
-                            <p className="text-sm font-semibold sm:hidden text-right">
+                            <p className="text-sm font-semibold sm:hidden text-right truncate">
                               {awayTeam.code}
                             </p>
                           </div>

@@ -38,6 +38,12 @@ export default async function TeamPage({ params }: TeamPageProps) {
   const standing = standings.find((row) => row.teamId === team.id);
   const squad = getTeamSquad(team.id);
 
+  // Agrupación por posiciones
+  const goalkeepers = squad.starters.filter((p) => p.pos === "POR");
+  const defenders = squad.starters.filter((p) => p.pos === "DEF");
+  const midfielders = squad.starters.filter((p) => p.pos === "MED");
+  const forwards = squad.starters.filter((p) => p.pos === "DEL");
+
   return (
     <div className="min-h-screen bg-[#050b1d] text-white">
       <SiteHeader />
@@ -96,13 +102,13 @@ export default async function TeamPage({ params }: TeamPageProps) {
                           </span>
                         </div>
                         <div className="mt-3 flex items-center justify-between">
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm font-semibold w-[35%] truncate">
                             {home.shortName}
                           </span>
-                          <span className="text-lg font-semibold bg-white/10 px-3 py-0.5 rounded-md">
+                          <span className="text-lg font-semibold bg-white/10 px-3 py-1 rounded-md whitespace-nowrap flex-shrink-0 mx-2">
                             {match.homeScore} - {match.awayScore}
                           </span>
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm font-semibold w-[35%] text-right truncate">
                             {away.shortName}
                           </span>
                         </div>
@@ -115,36 +121,73 @@ export default async function TeamPage({ params }: TeamPageProps) {
 
             {/* Plantilla del Equipo */}
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <h2 className="text-lg font-semibold">Plantilla del Equipo</h2>
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3">
-                    Titulares habituales
-                  </h3>
-                  <div className="space-y-2.5">
-                    {squad.starters.map((player, i) => (
-                      <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono text-white/40">#{player.number}</span>
-                          <span className="font-medium text-white/95">{player.name}</span>
-                        </div>
-                        <span className="text-xs font-semibold text-white/50 bg-white/5 px-2 py-0.5 rounded">
-                          {player.pos}
-                        </span>
+              <h2 className="text-lg font-semibold border-b border-white/10 pb-3 mb-6">Plantilla del Equipo</h2>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-6">
+                  {goalkeepers.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Porteros</h3>
+                      <div className="space-y-1.5">
+                        {goalkeepers.map((player, i) => (
+                          <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
+                            <span className="font-medium text-white/90">{player.name}</span>
+                            <span className="text-xs font-mono text-white/40">#{player.number}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
+
+                  {defenders.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Defensas</h3>
+                      <div className="space-y-1.5">
+                        {defenders.map((player, i) => (
+                          <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
+                            <span className="font-medium text-white/90">{player.name}</span>
+                            <span className="text-xs font-mono text-white/40">#{player.number}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {midfielders.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Centrocampistas</h3>
+                      <div className="space-y-1.5">
+                        {midfielders.map((player, i) => (
+                          <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
+                            <span className="font-medium text-white/90">{player.name}</span>
+                            <span className="text-xs font-mono text-white/40">#{player.number}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {forwards.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Delanteros</h3>
+                      <div className="space-y-1.5">
+                        {forwards.map((player, i) => (
+                          <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
+                            <span className="font-medium text-white/90">{player.name}</span>
+                            <span className="text-xs font-mono text-white/40">#{player.number}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3">
-                    Suplentes
-                  </h3>
-                  <div className="space-y-2.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-yellow-400/90 mb-2">Suplentes habituales</h3>
+                  <div className="space-y-1.5">
                     {squad.substitutes.map((player, i) => (
-                      <div key={i} className="flex items-center py-1.5 border-b border-white/5 text-sm">
-                        <span className="text-xs font-mono text-white/40 w-8">#{player.number}</span>
+                      <div key={i} className="flex items-center justify-between py-1 border-b border-white/5 text-sm">
                         <span className="font-medium text-white/80">{player.name}</span>
+                        <span className="text-xs font-mono text-white/40">#{player.number}</span>
                       </div>
                     ))}
                   </div>

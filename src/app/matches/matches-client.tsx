@@ -73,23 +73,23 @@ export function MatchesClient({ results }: { results: MatchResult[] }) {
                     </span>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3 w-[40%]">
+                    <div className="flex items-center gap-3 w-[35%] min-w-0">
                       <TeamBadge team={homeTeam} size="sm" />
                       <span className="text-sm font-semibold truncate hidden sm:block">
                         {homeTeam.name}
                       </span>
-                      <span className="text-sm font-semibold sm:hidden">
+                      <span className="text-sm font-semibold sm:hidden truncate">
                         {homeTeam.shortName}
                       </span>
                     </div>
-                    <span className="text-xl font-bold bg-white/10 px-4 py-1 rounded-lg">
+                    <span className="text-xl font-bold bg-white/10 px-4 py-1 rounded-lg whitespace-nowrap flex-shrink-0 mx-2">
                       {match.homeScore} - {match.awayScore}
                     </span>
-                    <div className="flex items-center gap-3 w-[40%] justify-end">
+                    <div className="flex items-center gap-3 w-[35%] min-w-0 justify-end">
                       <span className="text-sm font-semibold truncate hidden sm:block text-right">
                         {awayTeam.name}
                       </span>
-                      <span className="text-sm font-semibold sm:hidden text-right">
+                      <span className="text-sm font-semibold sm:hidden text-right truncate">
                         {awayTeam.shortName}
                       </span>
                       <TeamBadge team={awayTeam} size="sm" />
