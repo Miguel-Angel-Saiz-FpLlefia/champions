@@ -118,62 +118,83 @@ export const getMatchDetails = async (id: string): Promise<MatchDetails | null> 
   const match = await getMatchById(id);
   if (!match) return null;
 
-  // Obtener detalles reales de Supabase
-  const { data: detailsRow, error: detailsError } = await supabase
+  // 1. Obtener detalles (alineación base, stats) si existen
+  const { data: detailsRow } = await supabase
     .from("match_details")
     .select("*")
     .eq("match_id", id)
     .single();
 
-  if (detailsError || !detailsRow) {
-    console.warn("Error fetching match details from Supabase, falling back to local data.");
-    return generateMatchDetails(match);
-  }
-
-  // Obtener eventos
-  const { data: eventsRows, error: eventsError } = await supabase
+  // 2. Obtener eventos reales
+  const { data: eventsRows } = await supabase
     .from("match_events")
     .select("*")
     .eq("match_id", id)
     .order("minute", { ascending: true });
 
-  // Obtener jugadores de las plantillas (titulares y suplentes) para construir alineaciones
-  const { data: players, error: playersError } = await supabase
+  // 3. Obtener jugadores reales de la base de datos para ambos equipos
+  const { data: players } = await supabase
     .from("players")
     .select("*")
     .in("team_id", [match.homeTeamId, match.awayTeamId]);
 
-  if (eventsError || playersError || !players) {
-    console.warn("Error fetching secondary match details tables, falling back to local generator.");
+  const homePlayers = players?.filter((p) => p.team_id === match.homeTeamId) || [];
+  const awayPlayers = players?.filter((p) => p.team_id === match.awayTeamId) || [];
+
+  // Si no hay ningún jugador en la base de datos para estos equipos, es un equipo offline; caemos en el generador estático
+  if (homePlayers.length === 0 && awayPlayers.length === 0) {
+    console.warn("No players found in DB for matches, falling back to local generator.");
     return generateMatchDetails(match);
   }
 
-  const homePlayers = players.filter((p) => p.team_id === match.homeTeamId);
-  const awayPlayers = players.filter((p) => p.team_id === match.awayTeamId);
-
+  // Construir alineación local (dinámica basada en BD o con placeholders si no hay)
   const homeLineup = {
-    formation: detailsRow.home_formation,
-    starters: homePlayers
-      .filter((p) => p.position !== "SUB")
-      .map((p) => ({ player: { name: p.name, number: p.number }, position: p.position })),
-    substitutes: homePlayers
-      .filter((p) => p.position === "SUB")
-      .map((p) => ({ name: p.name, number: p.number })),
-    substitutions: detailsRow.home_substitutions || []
+    formation: detailsRow?.home_formation || "4-3-3",
+    starters: homePlayers.length > 0
+      ? homePlayers
+        .filter((p) => p.position !== "SUB")
+        .map((p) => ({ player: { name: p.name, number: p.number }, position: p.position }))
+      : [],
+    substitutes: homePlayers.length > 0
+      ? homePlayers
+        .filter((p) => p.position === "SUB")
+        .map((p) => ({ name: p.name, number: p.number }))
+      : [],
+    substitutions: detailsRow?.home_substitutions || []
   };
 
+  // Construir alineación visitante
   const awayLineup = {
-    formation: detailsRow.away_formation,
-    starters: awayPlayers
-      .filter((p) => p.position !== "SUB")
-      .map((p) => ({ player: { name: p.name, number: p.number }, position: p.position })),
-    substitutes: awayPlayers
-      .filter((p) => p.position === "SUB")
-      .map((p) => ({ name: p.name, number: p.number })),
-    substitutions: detailsRow.away_substitutions || []
+    formation: detailsRow?.away_formation || "4-3-3",
+    starters: awayPlayers.length > 0
+      ? awayPlayers
+        .filter((p) => p.position !== "SUB")
+        .map((p) => ({ player: { name: p.name, number: p.number }, position: p.position }))
+      : [],
+    substitutes: awayPlayers.length > 0
+      ? awayPlayers
+        .filter((p) => p.position === "SUB")
+        .map((p) => ({ name: p.name, number: p.number }))
+      : [],
+    substitutions: detailsRow?.away_substitutions || []
   };
 
-  const stats = detailsRow.stats;
+  // Construir estadísticas (reales o a cero por defecto)
+  const stats = detailsRow?.stats || {
+    xg: [0.0, 0.0],
+    shots: [0, 0],
+    corners: [0, 0],
+    passes: [0, 0],
+    fouls: [0, 0],
+    offsides: [0, 0],
+    possession: [50, 50],
+    redCards: [0, 0],
+    yellowCards: [0, 0],
+    passAccuracy: [0, 0],
+    shotsOnTarget: [0, 0]
+  };
+
+  // Mapear eventos reales
   const events = (eventsRows || []).map((e) => ({
     type: e.type as "goal" | "card",
     teamId: e.team_id,

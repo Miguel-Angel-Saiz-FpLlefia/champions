@@ -77,8 +77,10 @@ export default function DashboardPage() {
     setLoadingData(true);
     try {
       if (activeTab === "matches") {
-        const data = await getMatches();
-        setMatches(data);
+        const matchesData = await getMatches();
+        setMatches(matchesData);
+        const teamsData = await getTeams();
+        setTeams(teamsData);
       } else if (activeTab === "teams" || activeTab === "players") {
         const data = await getTeams();
         setTeams(data);
