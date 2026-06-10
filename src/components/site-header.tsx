@@ -1,14 +1,30 @@
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
   { label: "Inicio", href: "/" },
   { label: "Equipos", href: "/teams" },
-  { label: "Partidos", href: "/matches" },
   { label: "Resultados", href: "/results" },
   { label: "Clasificacion", href: "/standings" },
 ];
 
 export function SiteHeader() {
+  const { user, profile, loading, signOut } = useAuth();
+
+  // Color de badge según rol
+  const getRoleBadgeClass = (role?: string) => {
+    switch (role) {
+      case "Administrador":
+        return "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30";
+      case "editor":
+        return "bg-purple-500/15 text-purple-400 border border-purple-500/30";
+      default:
+        return "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30";
+    }
+  };
+
   return (
     <header className="relative z-10 border-b border-white/10 bg-[#050b1d]/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -48,51 +64,49 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          {(profile?.role === "Administrador" || profile?.role === "editor") && (
+            <Link
+              href="/dashboard"
+              className="text-yellow-400 font-bold transition hover:text-yellow-300"
+            >
+              Dashboard
+            </Link>
+          )}
         </nav>
-        <div className="flex items-center gap-3 text-white/70">
-          <button
-            type="button"
-            aria-label="Buscar"
-            className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 transition hover:text-white"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.3-4.3" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Notificaciones"
-            className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 transition hover:text-white"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7" />
-              <path d="M13.73 21a2 2 0 01-3.46 0" />
-            </svg>
-          </button>
-          <div className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-xs font-semibold">
-            UCL
-          </div>
+        <div className="flex items-center gap-4 text-white/70">
+          {!loading && user ? (
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex flex-col items-end text-xs">
+                <span className="font-medium text-white/90 truncate max-w-[150px]">{profile?.email || user.email}</span>
+                <span className={`px-1.5 py-0.5 mt-0.5 rounded text-[10px] font-bold uppercase ${getRoleBadgeClass(profile?.role)}`}>
+                  {profile?.role || "usuario normal"}
+                </span>
+              </div>
+              <button
+                onClick={signOut}
+                className="px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs font-semibold text-white/90 hover:bg-white/10 transition"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          ) : !loading ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="px-3 py-1.5 rounded-full border border-white/15 bg-[#0b1636] text-xs font-semibold text-cyan-300 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition"
+              >
+                Iniciar Sesión
+              </Link>
+              <Link
+                href="/register"
+                className="hidden sm:inline-block px-3 py-1.5 rounded-full bg-cyan-500 text-[#050b1d] text-xs font-semibold hover:bg-cyan-400 transition"
+              >
+                Registrarse
+              </Link>
+            </div>
+          ) : (
+            <span className="text-xs text-white/40">Cargando...</span>
+          )}
         </div>
       </div>
       <nav className="flex items-center justify-between gap-4 px-6 pb-3 text-xs font-semibold text-white/70 lg:hidden">
@@ -105,6 +119,14 @@ export function SiteHeader() {
             {item.label}
           </Link>
         ))}
+        {(profile?.role === "Administrador" || profile?.role === "editor") && (
+          <Link
+            href="/dashboard"
+            className="text-yellow-400 font-bold transition hover:text-yellow-300"
+          >
+            Dashboard
+          </Link>
+        )}
       </nav>
     </header>
   );

@@ -95,10 +95,10 @@ export default async function Home() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
-                  href="/matches"
+                  href="/results"
                   className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-cyan-400 to-blue-500 px-6 py-3 text-sm font-semibold text-[#050b1d] shadow-[0_15px_40px_rgba(66,181,255,0.35)] transition hover:-translate-y-px"
                 >
-                  Ver todos los partidos
+                  Ver todos los resultados
                 </Link>
                 <Link
                   href="/standings"
@@ -151,7 +151,7 @@ export default async function Home() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold">Ultimos resultados (Fase Final)</h2>
                 <Link
-                  href="/matches"
+                  href="/results"
                   className="text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
                 >
                   Ver todos
