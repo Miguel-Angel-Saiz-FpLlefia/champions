@@ -291,6 +291,88 @@ export const upsertMatch = async (matchData: any): Promise<any> => {
     console.error("Error saving match in Supabase:", error.message);
     throw error;
   }
+
+  // Verificar si ya existen los detalles del partido, si no, se inventan estadísticas
+  try {
+    const { data: existingDetails } = await supabase
+      .from("match_details")
+      .select("match_id")
+      .eq("match_id", matchData.id)
+      .maybeSingle();
+
+    if (!existingDetails) {
+      const homeScore = parseInt(matchData.homeScore) || 0;
+      const awayScore = parseInt(matchData.awayScore) || 0;
+
+      const rawXgHome = Number((homeScore + Math.random() * 0.9).toFixed(1));
+      const rawXgAway = Number((awayScore + Math.random() * 0.9).toFixed(1));
+      const posHome = 40 + Math.floor(Math.random() * 21);
+      const posAway = 100 - posHome;
+      const homeYellows = Math.floor(Math.random() * 3) + 1;
+      const awayYellows = Math.floor(Math.random() * 3) + 1;
+
+      const stats = {
+        xg: [rawXgHome, rawXgAway],
+        shots: [10 + Math.floor(rawXgHome * 3), 6 + Math.floor(rawXgAway * 3)],
+        shotsOnTarget: [homeScore + 1 + Math.floor(Math.random() * 4), awayScore + Math.floor(Math.random() * 3)],
+        possession: [posHome, posAway],
+        passes: [Math.floor(posHome * 9.5), Math.floor(posAway * 9.5)],
+        passAccuracy: [75 + Math.floor(Math.random() * 15), 75 + Math.floor(Math.random() * 15)],
+        fouls: [10 + Math.floor(Math.random() * 6), 10 + Math.floor(Math.random() * 6)],
+        yellowCards: [homeYellows, awayYellows],
+        redCards: [0, 0],
+        offsides: [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)],
+        corners: [3 + Math.floor(Math.random() * 6), 2 + Math.floor(Math.random() * 6)]
+      };
+
+      // Obtener jugadores para simular sustituciones
+      const { data: players } = await supabase
+        .from("players")
+        .select("*")
+        .in("team_id", [matchData.homeTeamId, matchData.awayTeamId]);
+
+      const homePlayers = players?.filter((p) => p.team_id === matchData.homeTeamId) || [];
+      const awayPlayers = players?.filter((p) => p.team_id === matchData.awayTeamId) || [];
+
+      const homeStarters = homePlayers.filter((p) => p.position !== "SUB");
+      const homeSubsList = homePlayers.filter((p) => p.position === "SUB");
+      const homeSubs = [];
+      for (let i = 0; i < Math.min(3, homeSubsList.length, homeStarters.length); i++) {
+        homeSubs.push({
+          playerIn: homeSubsList[i].name,
+          playerOut: homeStarters[homeStarters.length - 1 - i].name,
+          minute: 60 + i * 8
+        });
+      }
+
+      const awayStarters = awayPlayers.filter((p) => p.position !== "SUB");
+      const awaySubsList = awayPlayers.filter((p) => p.position === "SUB");
+      const awaySubs = [];
+      for (let i = 0; i < Math.min(3, awaySubsList.length, awayStarters.length); i++) {
+        awaySubs.push({
+          playerIn: awaySubsList[i].name,
+          playerOut: awayStarters[awayStarters.length - 1 - i].name,
+          minute: 62 + i * 7
+        });
+      }
+
+      const formations = ["4-3-3", "4-4-2", "3-5-2", "4-2-3-1"];
+      const homeFormation = formations[Math.floor(Math.random() * formations.length)];
+      const awayFormation = formations[Math.floor(Math.random() * formations.length)];
+
+      await supabase.from("match_details").insert({
+        match_id: matchData.id,
+        home_formation: homeFormation,
+        away_formation: awayFormation,
+        stats: stats,
+        home_substitutions: homeSubs,
+        away_substitutions: awaySubs
+      });
+    }
+  } catch (err) {
+    console.error("Error generating match details:", err);
+  }
+
   return data;
 };
 
