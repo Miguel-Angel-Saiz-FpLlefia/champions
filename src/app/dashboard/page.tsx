@@ -47,6 +47,7 @@ export default function DashboardPage() {
   const [newEventMinute, setNewEventMinute] = useState("");
   const [newEventPlayer, setNewEventPlayer] = useState("");
   const [newEventDetail, setNewEventDetail] = useState("");
+  const [teamPlayers, setTeamPlayers] = useState<any[]>([]);
 
   // Estados de formulario equipos
   const [editingTeam, setEditingTeam] = useState<any>(null);
@@ -123,6 +124,23 @@ export default function DashboardPage() {
       loadPlayersForSelectedTeam();
     }
   }, [selectedTeamId, activeTab]);
+
+  useEffect(() => {
+    if (!newEventTeamId) {
+      setTeamPlayers([]);
+      return;
+    }
+    const fetchTeamPlayers = async () => {
+      try {
+        const data = await getPlayersByTeamId(newEventTeamId);
+        setTeamPlayers(data || []);
+      } catch (err) {
+        console.error("Error loading team players:", err);
+        setTeamPlayers([]);
+      }
+    };
+    fetchTeamPlayers();
+  }, [newEventTeamId]);
 
   const showNotification = (message: string, type: "success" | "error" = "success") => {
     setNotification({ message, type });
@@ -678,13 +696,18 @@ export default function DashboardPage() {
                         onChange={(e) => setNewEventMinute(e.target.value)}
                         className="rounded-lg border border-white/10 bg-[#050b1d] px-2 py-1 text-xs text-white"
                       />
-                      <input
-                        type="text"
-                        placeholder="Jugador"
+                      <select
                         value={newEventPlayer}
                         onChange={(e) => setNewEventPlayer(e.target.value)}
                         className="col-span-2 rounded-lg border border-white/10 bg-[#050b1d] px-2 py-1 text-xs text-white"
-                      />
+                      >
+                        <option value="">Jugador...</option>
+                        {teamPlayers.map((p: any) => (
+                          <option key={p.id} value={p.name}>
+                            #{p.number} - {p.name} ({p.position})
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="flex gap-2">
                       <input

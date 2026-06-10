@@ -209,6 +209,8 @@ DROP POLICY IF EXISTS "Permitir escritura a administradores y editores" ON publi
 DROP POLICY IF EXISTS "Permitir escritura a administradores y editores" ON public.standings;
 DROP POLICY IF EXISTS "Permitir escritura a administradores y editores" ON public.players;
 DROP POLICY IF EXISTS "Permitir actualizar perfiles a administradores" ON public.profiles;
+DROP POLICY IF EXISTS "Permitir escritura a administradores y editores" ON public.match_details;
+DROP POLICY IF EXISTS "Permitir escritura a administradores y editores" ON public.match_events;
 
 -- Crear políticas de escritura para equipos, partidos, clasificación y jugadores
 CREATE POLICY "Permitir escritura a administradores y editores" ON public.teams
@@ -224,6 +226,14 @@ CREATE POLICY "Permitir escritura a administradores y editores" ON public.standi
     WITH CHECK (public.get_user_role() IN ('Administrador', 'editor'));
 
 CREATE POLICY "Permitir escritura a administradores y editores" ON public.players
+    FOR ALL USING (public.get_user_role() IN ('Administrador', 'editor'))
+    WITH CHECK (public.get_user_role() IN ('Administrador', 'editor'));
+
+CREATE POLICY "Permitir escritura a administradores y editores" ON public.match_details
+    FOR ALL USING (public.get_user_role() IN ('Administrador', 'editor'))
+    WITH CHECK (public.get_user_role() IN ('Administrador', 'editor'));
+
+CREATE POLICY "Permitir escritura a administradores y editores" ON public.match_events
     FOR ALL USING (public.get_user_role() IN ('Administrador', 'editor'))
     WITH CHECK (public.get_user_role() IN ('Administrador', 'editor'));
 

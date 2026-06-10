@@ -51,23 +51,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // 1. Obtener la sesión activa inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user.id).finally(() => {
-          setLoading(false);
-        });
-      } else {
-        setUser(null);
-        setProfile(null);
-        setLoading(false);
-      }
-    });
+    let mounted = true;
 
-    // 2. Suscribirse a cambios en el estado de autenticación
+    // Suscribirse a cambios en el estado de autenticación (también dispara el estado inicial)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+
         if (session?.user) {
           setUser(session.user);
           await fetchProfile(session.user.id);
@@ -80,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
