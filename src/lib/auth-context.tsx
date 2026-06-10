@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
+    console.log("AuthProvider: Starting to fetch profile for user ID:", userId);
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -39,19 +40,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error("Error fetching user profile:", error.message);
+        console.error("AuthProvider: Error response from profiles table query:", error.message, error);
         setProfile(null);
       } else {
+        console.log("AuthProvider: Profile successfully fetched and loaded:", data);
         setProfile(data as Profile);
       }
     } catch (err) {
-      console.error("Unexpected error fetching profile:", err);
+      console.error("AuthProvider: Unexpected exception inside fetchProfile:", err);
       setProfile(null);
     }
   };
 
   useEffect(() => {
     let mounted = true;
+    let initialCheckDone = false;
 
     // 1. Obtener la sesión inicial de forma segura
     const initAuth = async () => {
@@ -76,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error("Error fetching initial session:", err);
       } finally {
+        initialCheckDone = true;
         clearTimeout(timeoutId);
         if (mounted) {
           setLoading(false);
@@ -89,6 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: any, session: any) => {
         if (!mounted) return;
+        
+        // Evitar reprocesar el evento de sesión inicial si ya se ha hecho initAuth
+        if (event === "INITIAL_SESSION" && initialCheckDone) return;
 
         const timeoutId = setTimeout(() => {
           if (mounted) {
@@ -123,10 +130,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     setLoading(true);
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setLoading(false);
+    const timeoutId = setTimeout(() => {
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+    }, 2000);
+
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error during sign out:", err);
+    } finally {
+      clearTimeout(timeoutId);
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+    }
   };
 
   return (
