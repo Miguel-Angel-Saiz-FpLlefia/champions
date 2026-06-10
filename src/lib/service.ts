@@ -1,5 +1,15 @@
 import { supabase } from "./supabase";
-import type { Team, MatchResult, StandingsRow, MatchDetails } from "./champions-data";
+import {
+  Team,
+  MatchResult,
+  StandingsRow,
+  MatchDetails,
+  teams as localTeams,
+  latestResults as localMatches,
+  standings as localStandings,
+  generateMatchDetails,
+  getTeamSquad
+} from "./champions-data";
 
 // Mapeadores de base de datos a modelos TypeScript
 const mapTeam = (row: any): Team => ({
@@ -40,8 +50,8 @@ export const getMatches = async (): Promise<MatchResult[]> => {
     .select("*");
 
   if (error || !data) {
-    console.error("Error fetching matches from Supabase, falling back.", error);
-    return [];
+    console.warn("Error fetching matches from Supabase, falling back to local data.");
+    return localMatches;
   }
   return data.map(mapMatch);
 };
@@ -58,8 +68,8 @@ export const getStandings = async (): Promise<StandingsRow[]> => {
     .order("position", { ascending: true });
 
   if (error || !data) {
-    console.error("Error fetching standings from Supabase", error);
-    return [];
+    console.warn("Error fetching standings from Supabase, falling back to local data.");
+    return localStandings;
   }
   return data.map(mapStanding);
 };
@@ -70,8 +80,8 @@ export const getTeams = async (): Promise<Team[]> => {
     .select("*");
 
   if (error || !data) {
-    console.error("Error fetching teams from Supabase", error);
-    return [];
+    console.warn("Error fetching teams from Supabase, falling back to local data.");
+    return localTeams;
   }
   return data.map(mapTeam);
 };
@@ -84,7 +94,8 @@ export const getTeam = async (id: string): Promise<Team | null> => {
     .single();
 
   if (error || !data) {
-    return null;
+    const local = localTeams.find((t) => t.id === id);
+    return local || null;
   }
   return mapTeam(data);
 };
@@ -97,7 +108,8 @@ export const getMatchById = async (id: string): Promise<MatchResult | null> => {
     .single();
 
   if (error || !data) {
-    return null;
+    const local = localMatches.find((m) => m.id === id);
+    return local || null;
   }
   return mapMatch(data);
 };
@@ -114,24 +126,30 @@ export const getMatchDetails = async (id: string): Promise<MatchDetails | null> 
     .single();
 
   if (detailsError || !detailsRow) {
-    return null;
+    console.warn("Error fetching match details from Supabase, falling back to local data.");
+    return generateMatchDetails(match);
   }
 
   // Obtener eventos
-  const { data: eventsRows } = await supabase
+  const { data: eventsRows, error: eventsError } = await supabase
     .from("match_events")
     .select("*")
     .eq("match_id", id)
     .order("minute", { ascending: true });
 
   // Obtener jugadores de las plantillas (titulares y suplentes) para construir alineaciones
-  const { data: players } = await supabase
+  const { data: players, error: playersError } = await supabase
     .from("players")
     .select("*")
     .in("team_id", [match.homeTeamId, match.awayTeamId]);
 
-  const homePlayers = players?.filter((p) => p.team_id === match.homeTeamId) || [];
-  const awayPlayers = players?.filter((p) => p.team_id === match.awayTeamId) || [];
+  if (eventsError || playersError || !players) {
+    console.warn("Error fetching secondary match details tables, falling back to local generator.");
+    return generateMatchDetails(match);
+  }
+
+  const homePlayers = players.filter((p) => p.team_id === match.homeTeamId);
+  const awayPlayers = players.filter((p) => p.team_id === match.awayTeamId);
 
   const homeLineup = {
     formation: detailsRow.home_formation,
@@ -174,13 +192,13 @@ export const getMatchDetails = async (id: string): Promise<MatchDetails | null> 
 };
 
 export const getTeamSquadById = async (teamId: string): Promise<any> => {
-  const { data: playersRows } = await supabase
+  const { data: playersRows, error } = await supabase
     .from("players")
     .select("*")
     .eq("team_id", teamId);
 
-  if (!playersRows || playersRows.length === 0) {
-    return { starters: [], substitutes: [] };
+  if (error || !playersRows || playersRows.length === 0) {
+    return getTeamSquad(teamId);
   }
 
   const starters = playersRows
@@ -193,3 +211,240 @@ export const getTeamSquadById = async (teamId: string): Promise<any> => {
 
   return { starters, substitutes };
 };
+
+export const getCommentsByMatchId = async (matchId: string): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*, profiles(email, role)")
+    .eq("match_id", matchId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching comments from Supabase:", error.message);
+    return [];
+  }
+  return data || [];
+};
+
+export const createComment = async (
+  matchId: string,
+  userId: string,
+  content: string
+): Promise<any> => {
+  const { data, error } = await supabase
+    .from("comments")
+    .insert([
+      {
+        match_id: matchId,
+        user_id: userId,
+        content: content
+      }
+    ])
+    .select("*, profiles(email, role)")
+    .single();
+
+  if (error) {
+    console.error("Error creating comment in Supabase:", error.message);
+    throw error;
+  }
+  return data;
+};
+
+export const upsertMatch = async (matchData: any): Promise<any> => {
+  const { data, error } = await supabase
+    .from("matches")
+    .upsert({
+      id: matchData.id,
+      stage: matchData.stage,
+      date: matchData.date,
+      home_team_id: matchData.homeTeamId,
+      away_team_id: matchData.awayTeamId,
+      home_score: parseInt(matchData.homeScore),
+      away_score: parseInt(matchData.awayScore),
+      status: matchData.status
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error saving match in Supabase:", error.message);
+    throw error;
+  }
+  return data;
+};
+
+export const deleteMatch = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from("matches")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting match in Supabase:", error.message);
+    throw error;
+  }
+};
+
+export const upsertTeam = async (teamData: any): Promise<any> => {
+  const { data, error } = await supabase
+    .from("teams")
+    .upsert({
+      id: teamData.id,
+      name: teamData.name,
+      short_name: teamData.shortName,
+      country: teamData.country,
+      code: teamData.code,
+      color_from: teamData.colors.from,
+      color_to: teamData.colors.to,
+      logo_url: teamData.logoUrl || null
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error saving team in Supabase:", error.message);
+    throw error;
+  }
+  return data;
+};
+
+export const deleteTeam = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from("teams")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting team in Supabase:", error.message);
+    throw error;
+  }
+};
+
+export const getAllProfiles = async (): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching profiles from Supabase:", error.message);
+    return [];
+  }
+  return data || [];
+};
+
+export const updateUserProfileRole = async (
+  userId: string,
+  newRole: "Administrador" | "editor" | "usuario normal"
+): Promise<any> => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ role: newRole })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error updating user role in Supabase:", error.message);
+    throw error;
+  }
+  return data;
+};
+
+export const getMatchEvents = async (matchId: string): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from("match_events")
+    .select("*")
+    .eq("match_id", matchId)
+    .order("minute", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching match events from Supabase:", error.message);
+    return [];
+  }
+  return data || [];
+};
+
+export const saveMatchEvents = async (matchId: string, events: any[]): Promise<void> => {
+  // Eliminar eventos anteriores
+  const { error: deleteError } = await supabase
+    .from("match_events")
+    .delete()
+    .eq("match_id", matchId);
+
+  if (deleteError) {
+    console.error("Error clearing existing match events:", deleteError.message);
+    throw deleteError;
+  }
+
+  if (events.length === 0) return;
+
+  // Insertar nuevos eventos
+  const { error: insertError } = await supabase
+    .from("match_events")
+    .insert(
+      events.map((e) => ({
+        match_id: matchId,
+        type: e.type,
+        team_id: e.team_id || e.teamId,
+        minute: parseInt(e.minute),
+        player: e.player,
+        detail: e.detail || null
+      }))
+    );
+
+  if (insertError) {
+    console.error("Error saving match events:", insertError.message);
+    throw insertError;
+  }
+};
+
+export const getPlayersByTeamId = async (teamId: string): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from("players")
+    .select("*")
+    .eq("team_id", teamId)
+    .order("number", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching players from Supabase:", error.message);
+    return [];
+  }
+  return data || [];
+};
+
+export const upsertPlayer = async (playerData: any): Promise<any> => {
+  const { data, error } = await supabase
+    .from("players")
+    .upsert({
+      id: playerData.id || undefined,
+      team_id: playerData.teamId,
+      name: playerData.name,
+      number: parseInt(playerData.number),
+      position: playerData.position
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error saving player in Supabase:", error.message);
+    throw error;
+  }
+  return data;
+};
+
+export const deletePlayer = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from("players")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting player in Supabase:", error.message);
+    throw error;
+  }
+};
+
+
+
+

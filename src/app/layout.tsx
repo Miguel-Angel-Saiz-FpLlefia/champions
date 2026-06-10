@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Manrope } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
 
 const displayFont = Bebas_Neue({
   variable: "--font-display",
@@ -29,7 +30,9 @@ export default function RootLayout({
       lang="es"
       className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#050b1d] text-slate-100">{children}</body>
+      <body className="min-h-full bg-[#050b1d] text-slate-100">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

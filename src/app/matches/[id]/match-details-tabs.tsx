@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { MatchDetails, Team } from "@/lib/champions-data";
+import { useAuth } from "@/lib/auth-context";
+import { getCommentsByMatchId, createComment } from "@/lib/service";
+import Link from "next/link";
 
 interface MatchDetailsTabsProps {
   details: MatchDetails;
@@ -10,22 +13,61 @@ interface MatchDetailsTabsProps {
 }
 
 export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTabsProps) {
-  const [activeTab, setActiveTab] = useState<"lineups" | "stats" | "events">("lineups");
+  const [activeTab, setActiveTab] = useState<"lineups" | "stats" | "events" | "comments">("lineups");
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const { user } = useAuth();
 
   const homeColor = homeTeam.colors.from;
   const awayColor = awayTeam.colors.from;
 
-  // Separar los eventos por equipo
-  const homeEvents = details.events.filter((e) => e.teamId === homeTeam.id);
-  const awayEvents = details.events.filter((e) => e.teamId === awayTeam.id);
+  // Cargar comentarios al activar la pestaña de comentarios
+  useEffect(() => {
+    if (activeTab === "comments") {
+      setCommentsLoading(true);
+      getCommentsByMatchId(details.matchId).then((data) => {
+        setComments(data);
+        setCommentsLoading(false);
+      });
+    }
+  }, [activeTab, details.matchId]);
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newComment.trim()) return;
+
+    setSubmittingComment(true);
+    try {
+      const created = await createComment(details.matchId, user.id, newComment.trim());
+      setComments((prev) => [...prev, created]);
+      setNewComment("");
+    } catch (err) {
+      alert("Error al publicar el comentario.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const getRoleBadgeClass = (role?: string) => {
+    switch (role) {
+      case "Administrador":
+        return "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20";
+      case "editor":
+        return "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+      default:
+        return "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
+    }
+  };
 
   return (
     <div className="mt-8">
       {/* Selector de pestañas */}
-      <div className="flex border-b border-white/10">
+      <div className="flex border-b border-white/10 overflow-x-auto whitespace-nowrap">
         <button
           onClick={() => setActiveTab("lineups")}
-          className={`flex-1 pb-4 text-sm font-semibold tracking-wider uppercase transition border-b-2 ${
+          className={`flex-1 pb-4 text-xs sm:text-sm font-semibold tracking-wider uppercase transition border-b-2 min-w-[100px] ${
             activeTab === "lineups"
               ? "border-cyan-400 text-cyan-400"
               : "border-transparent text-white/50 hover:text-white"
@@ -35,7 +77,7 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
         </button>
         <button
           onClick={() => setActiveTab("stats")}
-          className={`flex-1 pb-4 text-sm font-semibold tracking-wider uppercase transition border-b-2 ${
+          className={`flex-1 pb-4 text-xs sm:text-sm font-semibold tracking-wider uppercase transition border-b-2 min-w-[100px] ${
             activeTab === "stats"
               ? "border-cyan-400 text-cyan-400"
               : "border-transparent text-white/50 hover:text-white"
@@ -45,13 +87,23 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
         </button>
         <button
           onClick={() => setActiveTab("events")}
-          className={`flex-1 pb-4 text-sm font-semibold tracking-wider uppercase transition border-b-2 ${
+          className={`flex-1 pb-4 text-xs sm:text-sm font-semibold tracking-wider uppercase transition border-b-2 min-w-[100px] ${
             activeTab === "events"
               ? "border-cyan-400 text-cyan-400"
               : "border-transparent text-white/50 hover:text-white"
           }`}
         >
           Goles y Tarjetas
+        </button>
+        <button
+          onClick={() => setActiveTab("comments")}
+          className={`flex-1 pb-4 text-xs sm:text-sm font-semibold tracking-wider uppercase transition border-b-2 min-w-[100px] ${
+            activeTab === "comments"
+              ? "border-cyan-400 text-cyan-400"
+              : "border-transparent text-white/50 hover:text-white"
+          }`}
+        >
+          Comentarios
         </button>
       </div>
 
@@ -204,7 +256,6 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
             </h3>
             
             <div className="space-y-6">
-              {/* Función para renderizar una fila de estadística */}
               {Object.entries({
                 xg: { label: "xG (Goles Esperados)", isFloat: true },
                 possession: { label: "Posesión de balón", suffix: "%" },
@@ -241,9 +292,7 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
                         {config.suffix}
                       </span>
                     </div>
-                    {/* Barra de progreso de dos extremos encontrándose en el centro */}
                     <div className="grid grid-cols-[1fr_2px_1fr] items-center gap-2">
-                      {/* Barra Local (crece hacia la izquierda) */}
                       <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden flex justify-end">
                         <div
                           className="h-full rounded-full transition-all duration-500"
@@ -254,11 +303,7 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
                           }}
                         />
                       </div>
-                      
-                      {/* Divisor central */}
                       <div className="h-3 w-[2px] bg-white/20" />
-                      
-                      {/* Barra Visitante (crece hacia la derecha) */}
                       <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden flex justify-start">
                         <div
                           className="h-full rounded-full transition-all duration-500"
@@ -293,14 +338,11 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
 
                   return (
                     <div key={index} className="relative group">
-                      {/* Círculo indicador del minuto */}
                       <span className="absolute -left-[35px] top-0 flex h-6.5 w-6.5 items-center justify-center rounded-full bg-[#050b1d] border-2 border-cyan-500 text-[10px] font-bold text-cyan-400">
                         {event.minute}&apos;
                       </span>
 
-                      {/* Caja del evento */}
                       <div className="flex flex-col md:flex-row md:items-center gap-4 bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition">
-                        {/* Icono del evento */}
                         <div className="flex items-center gap-3">
                           {event.type === "goal" ? (
                             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 text-lg">
@@ -332,6 +374,92 @@ export function MatchDetailsTabs({ details, homeTeam, awayTeam }: MatchDetailsTa
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "comments" && (
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm max-w-2xl mx-auto">
+            <h3 className="font-semibold text-lg mb-6 text-center border-b border-white/10 pb-4">
+              Comentarios del Partido
+            </h3>
+
+            {/* Listado de comentarios */}
+            <div className="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2">
+              {commentsLoading ? (
+                <p className="text-center text-white/50 py-4 text-sm">Cargando comentarios...</p>
+              ) : comments.length === 0 ? (
+                <p className="text-center text-white/50 py-8 text-sm">
+                  Aún no hay comentarios en este partido. ¡Sé el primero en comentar!
+                </p>
+              ) : (
+                comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="p-4 rounded-2xl border border-white/5 bg-[#0b1636]/40 flex flex-col gap-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-semibold text-white/80">
+                          {comment.profiles?.email || "Usuario"}
+                        </span>
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase ${getRoleBadgeClass(
+                            comment.profiles?.role
+                          )}`}
+                        >
+                          {comment.profiles?.role || "usuario normal"}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-white/40">
+                        {new Date(comment.created_at).toLocaleDateString("es-ES", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-white/85 whitespace-pre-wrap">{comment.content}</p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Formulario o banner de Login */}
+            {user ? (
+              <form onSubmit={handleSubmitComment} className="border-t border-white/10 pt-6 space-y-3">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-white/60">
+                  Escribir un comentario
+                </label>
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Comparte tu opinión del partido..."
+                  required
+                  rows={3}
+                  className="w-full rounded-xl border border-white/10 bg-[#050b1d]/50 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-cyan-400 focus:outline-none transition resize-none"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={submittingComment}
+                    className="px-5 py-2.5 rounded-xl bg-cyan-500 font-semibold text-[#050b1d] text-xs shadow-md hover:bg-cyan-400 active:scale-[0.98] disabled:opacity-50 transition"
+                  >
+                    {submittingComment ? "Publicando..." : "Publicar Comentario"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="border-t border-white/10 pt-6 text-center">
+                <p className="text-sm text-white/60 mb-4">
+                  Debes iniciar sesión para poder publicar comentarios en los partidos.
+                </p>
+                <Link
+                  href="/login"
+                  className="inline-block px-6 py-2.5 rounded-xl bg-linear-to-r from-cyan-400 to-blue-500 font-semibold text-[#050b1d] text-xs shadow-[0_15px_40px_rgba(66,181,255,0.2)] hover:opacity-90 transition"
+                >
+                  Iniciar Sesión
+                </Link>
               </div>
             )}
           </div>
