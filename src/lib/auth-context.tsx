@@ -55,6 +55,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 1. Obtener la sesión inicial de forma segura
     const initAuth = async () => {
+      const timeoutId = setTimeout(() => {
+        if (mounted) {
+          console.warn("Auth initialization timed out, forcing loading to false");
+          setLoading(false);
+        }
+      }, 2500);
+
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (mounted) {
@@ -69,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error("Error fetching initial session:", err);
       } finally {
+        clearTimeout(timeoutId);
         if (mounted) {
           setLoading(false);
         }
@@ -82,6 +90,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event: any, session: any) => {
         if (!mounted) return;
 
+        const timeoutId = setTimeout(() => {
+          if (mounted) {
+            setLoading(false);
+          }
+        }, 2500);
+
         try {
           if (session?.user) {
             setUser(session.user);
@@ -93,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
           console.error("Error in auth state change listener:", err);
         } finally {
+          clearTimeout(timeoutId);
           if (mounted) {
             setLoading(false);
           }
