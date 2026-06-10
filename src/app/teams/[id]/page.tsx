@@ -11,10 +11,7 @@ import {
   getTeams,
 } from "@/lib/service";
 
-export async function generateStaticParams() {
-  const allTeams = await getTeams();
-  return allTeams.map((team) => ({ id: team.id }));
-}
+export const dynamic = "force-dynamic";
 
 type TeamPageProps = {
   params: Promise<{ id: string }>;

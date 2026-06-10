@@ -3,6 +3,8 @@ import { SiteHeader } from "@/components/site-header";
 import { TeamBadge } from "@/components/team-badge";
 import { getMatches, getTeam } from "@/lib/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function ResultsPage() {
   const latestResults = await getMatches();
 

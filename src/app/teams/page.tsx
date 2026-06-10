@@ -3,6 +3,8 @@ import { SiteHeader } from "@/components/site-header";
 import { TeamBadge } from "@/components/team-badge";
 import { getTeams } from "@/lib/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeamsPage() {
   const teams = await getTeams();
 

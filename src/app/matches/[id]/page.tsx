@@ -5,6 +5,8 @@ import { TeamBadge } from "@/components/team-badge";
 import { getMatchById, getMatchDetails, getTeam } from "@/lib/service";
 import { MatchDetailsTabs } from "./match-details-tabs";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

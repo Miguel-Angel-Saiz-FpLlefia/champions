@@ -4,6 +4,8 @@ import { TeamBadge } from "@/components/team-badge";
 import { featuredTeamIds, seasonLabel, type Team } from "@/lib/champions-data";
 import { getMatches, getStandings, getUpcomingMatches, getTeam } from "@/lib/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const matches = await getMatches();
   const standings = await getStandings();
